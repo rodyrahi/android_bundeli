@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
 
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
@@ -43,6 +44,29 @@ public class HomeActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_home);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+
+
+        // Find the BottomNavigationView
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // Set a listener for item selection
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.navigation_home:
+                    // Handle Home click
+                    return true;
+                case R.id.navigation_dashboard:
+                    // Handle Dashboard click
+                    return true;
+                case R.id.navigation_notifications:
+                    // Handle Notifications click
+                    return true;
+            }
+            return false;
+        });
+
+
     }
 
     @Override

@@ -114,7 +114,7 @@ public class HomeFragment extends Fragment {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-                swipeRefreshLayout.setRefreshing(false);
+//                swipeRefreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -132,8 +132,8 @@ public class HomeFragment extends Fragment {
             }
         });
 
-        swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
-        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
+//        swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
+//        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
 
         webView.setOnKeyListener((view, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -160,7 +160,7 @@ public class HomeFragment extends Fragment {
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-                swipeRefreshLayout.setRefreshing(false);
+//                swipeRefreshLayout.setRefreshing(false);
             }
         });
 
