@@ -38,7 +38,7 @@ import com.kamingo.bundelikissan.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
-    private SwipeRefreshLayout swipeRefreshLayout;
+//    private SwipeRefreshLayout swipeRefreshLayout;
     private FragmentHomeBinding binding;
     private SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "MySharedPref";
@@ -92,7 +92,7 @@ public class HomeFragment extends Fragment {
         String savedUrl = sharedPreferences.getString(URL_KEY, null);
 
         // Load the saved URL or a default URL
-        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/";
+        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/notification";
         webView.loadUrl(initialUrl);
 
         WebSettings webSettings = webView.getSettings();
@@ -107,7 +107,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                progressBar.setVisibility(View.VISIBLE);
+//                progressBar.setVisibility(View.VISIBLE);
             }
 
             @Override
