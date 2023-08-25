@@ -4,10 +4,16 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Menu;
 
+import com.example.bundelikissan.ui.gallery.GalleryFragment;
+import com.example.bundelikissan.ui.home.HomeFragment;
+import com.example.bundelikissan.ui.slideshow.SlideshowFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -15,14 +21,14 @@ import androidx.navigation.ui.NavigationUI;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.kamingo.bundelikissan.R;
 import com.kamingo.bundelikissan.databinding.ActivityHomeBinding;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity implements HomeFragment.BottomNavViewCallback {
 
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityHomeBinding binding;
-
-    private long presTime;
+    public BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,56 +39,26 @@ public class HomeActivity extends AppCompatActivity {
 
         setSupportActionBar(binding.appBarHome.toolbar);
 
-        DrawerLayout drawer = binding.drawerLayout;
-        NavigationView navigationView = binding.navView;
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setOpenableLayout(drawer)
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow
+        ).setOpenableLayout(binding.drawerLayout) // Use the existing binding reference
                 .build();
+
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_home);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
+        NavigationUI.setupWithNavController(binding.navView, navController); // Use the existing binding reference
 
+        bottomNavigationView = binding.bottomNavigation; // Assignment moved here
 
-
-        // Find the BottomNavigationView
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        // Set a listener for item selection
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.navigation_home:
-                    // Handle Home click
-                    return true;
-                case R.id.navigation_dashboard:
-                    // Handle Dashboard click
-                    return true;
-                case R.id.navigation_notifications:
-                    // Handle Notifications click
-                    return true;
-            }
-            return false;
-        });
-
-
+        NavigationUI.setupWithNavController(bottomNavigationView, navController);
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.home, menu);
         return true;
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (presTime+2000 > System.currentTimeMillis()){
-            super.onBackPressed();
-            finish();
-        }
-        presTime = System.currentTimeMillis();
     }
 
     @Override
@@ -91,4 +67,18 @@ public class HomeActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, mAppBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    // Implement interface methods
+    @Override
+    public void showBottomNavigationView() {
+        bottomNavigationView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void hideBottomNavigationView() {
+        bottomNavigationView.setVisibility(View.GONE);
+    }
+
+
+
 }

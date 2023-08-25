@@ -15,6 +15,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.CookieSyncManager;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
@@ -38,7 +39,7 @@ import com.kamingo.bundelikissan.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
-//    private SwipeRefreshLayout swipeRefreshLayout;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private FragmentHomeBinding binding;
     private SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "MySharedPref";
@@ -51,38 +52,20 @@ public class HomeFragment extends Fragment {
     private ValueCallback<Uri[]> fileUploadCallback;
     private String fileUploadCallbackName;
 
-    private final ActivityResultLauncher<Intent> fileUploadLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(),
-            result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && fileUploadCallback != null) {
-                    Uri[] resultUris = null;
-                    Intent data = result.getData();
-                    if (data != null) {
-                        if (data.getClipData() != null) {
-                            int count = data.getClipData().getItemCount();
-                            resultUris = new Uri[count];
-                            for (int i = 0; i < count; i++) {
-                                resultUris[i] = data.getClipData().getItemAt(i).getUri();
-                            }
-                        } else if (data.getData() != null) {
-                            resultUris = new Uri[]{data.getData()};
-                        }
-                    }
-                    fileUploadCallback.onReceiveValue(resultUris);
-                    fileUploadCallback = null;
-                } else {
-                    if (fileUploadCallback != null) {
-                        fileUploadCallback.onReceiveValue(null);
-                        fileUploadCallback = null;
-                    }
-                }
-            }
-    );
+    private BottomNavViewCallback bottomNavViewCallback;
+    private ActivityResultLauncher<Intent> fileUploadLauncher;
+
+    public interface BottomNavViewCallback {
+        void showBottomNavigationView();
+        void hideBottomNavigationView();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
+
+        bottomNavViewCallback = (BottomNavViewCallback) getActivity();
 
         sharedPreferences = requireContext().getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         webView = binding.idHomeWebView;
@@ -92,7 +75,7 @@ public class HomeFragment extends Fragment {
         String savedUrl = sharedPreferences.getString(URL_KEY, null);
 
         // Load the saved URL or a default URL
-        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/notification";
+        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/home";
         webView.loadUrl(initialUrl);
 
         WebSettings webSettings = webView.getSettings();
@@ -104,36 +87,30 @@ public class HomeFragment extends Fragment {
 
         // Show progress bar when the page starts loading
         webView.setWebViewClient(new WebViewClient() {
+
+
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-//                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.VISIBLE);
+                if (url.contains("/home")) {
+                    // Show the bottom navigation bar
+                    bottomNavViewCallback.showBottomNavigationView();
+                } else {
+                    // Hide the bottom navigation bar
+                    bottomNavViewCallback.hideBottomNavigationView();
+                }
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
-//                swipeRefreshLayout.setRefreshing(false);
-            }
+                CookieSyncManager.getInstance().sync();
 
-            @Override
-            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
-                String url = request.getUrl().toString();
-                if (url != null && (url.startsWith("http://bundeli.hellosugar.io") || url.startsWith("https://bundeli.hellosugar.io"))) {
-                    // External link, open in external browser
-                    view.loadUrl(url);
-                    return true;
-                } else {
-                    // Internal link or other scheme, load within WebView
-                    view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                    return true;
-                }
+
             }
         });
-
-//        swipeRefreshLayout = root.findViewById(R.id.swipeRefreshLayout);
-//        swipeRefreshLayout.setOnRefreshListener(() -> webView.reload());
 
         webView.setOnKeyListener((view, keyCode, event) -> {
             if (event.getAction() == KeyEvent.ACTION_DOWN) {
@@ -145,26 +122,10 @@ public class HomeFragment extends Fragment {
             return false;
         });
 
-        // Save the URL when the WebView loads a new page
-        webView.setWebViewClient(new WebViewClient() {
-            @Override
-            public void onPageStarted(WebView view, String url, Bitmap favicon) {
-                super.onPageStarted(view, url, favicon);
-                // Save the URL
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString(URL_KEY, url);
-                editor.apply();
-            }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            WebView.setWebContentsDebuggingEnabled(true);
+        }
 
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                super.onPageFinished(view, url);
-                progressBar.setVisibility(View.GONE);
-//                swipeRefreshLayout.setRefreshing(false);
-            }
-        });
-
-        // File upload handling
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
             public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, FileChooserParams fileChooserParams) {
@@ -174,6 +135,7 @@ public class HomeFragment extends Fragment {
                 fileUploadCallback = filePathCallback;
 
                 Intent intent = fileChooserParams.createIntent();
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true); // Allow multiple file selection
                 fileUploadCallbackName = fileChooserParams.getFilenameHint();
 
                 try {
@@ -187,6 +149,35 @@ public class HomeFragment extends Fragment {
                 return true;
             }
         });
+
+        // Create the file upload launcher
+        fileUploadLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == Activity.RESULT_OK && fileUploadCallback != null) {
+                        Uri[] resultUris = null;
+                        Intent data = result.getData();
+                        if (data != null) {
+                            if (data.getClipData() != null) {
+                                int count = data.getClipData().getItemCount();
+                                resultUris = new Uri[count];
+                                for (int i = 0; i < count; i++) {
+                                    resultUris[i] = data.getClipData().getItemAt(i).getUri();
+                                }
+                            } else if (data.getData() != null) {
+                                resultUris = new Uri[]{data.getData()};
+                            }
+                        }
+                        fileUploadCallback.onReceiveValue(resultUris);
+                        fileUploadCallback = null;
+                    } else {
+                        if (fileUploadCallback != null) {
+                            fileUploadCallback.onReceiveValue(null);
+                            fileUploadCallback = null;
+                        }
+                    }
+                }
+        );
 
         return root;
     }
