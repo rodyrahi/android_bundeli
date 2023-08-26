@@ -1,4 +1,4 @@
-package com.example.bundelikissan.ui.gallery;
+package com.example.bundelikissan.ui.logout;
 
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
@@ -9,7 +9,15 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
 import android.os.Handler;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,19 +31,15 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.kamingo.bundelikissan.databinding.FragmentGalleryBinding;
+import com.example.bundelikissan.ui.home.HomeFragment;
+import com.kamingo.bundelikissan.R;
 import com.kamingo.bundelikissan.databinding.FragmentHomeBinding;
+import com.kamingo.bundelikissan.databinding.FragmentLogoutBinding;
 
-public class GalleryFragment extends Fragment {
+
+public class LogoutFragment extends Fragment {
 
 
     private FragmentHomeBinding binding;
@@ -49,6 +53,13 @@ public class GalleryFragment extends Fragment {
     // File upload variables
     private ValueCallback<Uri[]> fileUploadCallback;
     private String fileUploadCallbackName;
+
+    private HomeFragment.BottomNavViewCallback bottomNavViewCallback;
+
+    public interface BottomNavViewCallback {
+        void showBottomNavigationView();
+        void hideBottomNavigationView();
+    }
 
     private final ActivityResultLauncher<Intent> fileUploadLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -83,6 +94,11 @@ public class GalleryFragment extends Fragment {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
 
+
+
+        bottomNavViewCallback = (HomeFragment.BottomNavViewCallback) getActivity();
+
+
         sharedPreferences = requireContext().getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         webView = binding.idHomeWebView;
         progressBar = binding.HomeProgress;
@@ -91,7 +107,7 @@ public class GalleryFragment extends Fragment {
         String savedUrl = sharedPreferences.getString(URL_KEY, null);
 
         // Load the saved URL or a default URL
-        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/notification";
+        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/logout";
         webView.loadUrl(initialUrl);
 
         WebSettings webSettings = webView.getSettings();
@@ -111,6 +127,13 @@ public class GalleryFragment extends Fragment {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 progressBar.setVisibility(View.VISIBLE);
+                if (url.contains("/home") || url.contains("/logout")) {
+                    Log.d("WebViewDebug", "Show bottom navigation");
+                    bottomNavViewCallback.showBottomNavigationView();
+                } else {
+                    Log.d("WebViewDebug", "Hide bottom navigation");
+                    bottomNavViewCallback.hideBottomNavigationView();
+                }
             }
 
             @Override
