@@ -80,6 +80,7 @@
             android:background="@color/white"
             app:itemIconTint="@color/blue"
             app:itemTextColor="@color/blue"
+            app:itemIconSize="28dp"
             app:menu="@menu/bottom_navigation_menu" />
     </RelativeLayout>
 

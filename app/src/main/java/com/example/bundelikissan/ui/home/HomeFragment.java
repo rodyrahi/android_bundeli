@@ -85,7 +85,7 @@ public class HomeFragment extends Fragment {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 progressBar.setVisibility(View.VISIBLE);
-                if (url.contains("home")) {
+                if (url.contains("home") || url.contains("chat") || url.contains("userprofile") || url.contains("mandi") || url.contains("query")) {
                     // Show the bottom navigation bar
                     bottomNavViewCallback.showBottomNavigationView();
                 } else {
