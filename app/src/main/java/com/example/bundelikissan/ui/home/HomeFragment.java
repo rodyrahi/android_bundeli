@@ -1,12 +1,10 @@
 package com.example.bundelikissan.ui.home;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
@@ -30,16 +28,12 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.kamingo.bundelikissan.MainActivity;
 import com.kamingo.bundelikissan.R;
 import com.kamingo.bundelikissan.databinding.FragmentHomeBinding;
 
 public class HomeFragment extends Fragment {
 
-    private SwipeRefreshLayout swipeRefreshLayout;
     private FragmentHomeBinding binding;
     private SharedPreferences sharedPreferences;
     private static final String SHARED_PREF_NAME = "MySharedPref";
@@ -87,13 +81,11 @@ public class HomeFragment extends Fragment {
 
         // Show progress bar when the page starts loading
         webView.setWebViewClient(new WebViewClient() {
-
-
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 progressBar.setVisibility(View.VISIBLE);
-                if (url.contains("/home")) {
+                if (url.contains("home")) {
                     // Show the bottom navigation bar
                     bottomNavViewCallback.showBottomNavigationView();
                 } else {
@@ -107,8 +99,6 @@ public class HomeFragment extends Fragment {
                 super.onPageFinished(view, url);
                 progressBar.setVisibility(View.GONE);
                 CookieSyncManager.getInstance().sync();
-
-
             }
         });
 
