@@ -4,13 +4,13 @@ plugins {
 
 android {
     namespace 'com.kamingo.bundelikissan'
-    compileSdk 33
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.kamingo.bundelikissan"
         minSdk 24
-        targetSdk 33
-        versionCode 12
+        targetSdk 34
+        versionCode 13
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"

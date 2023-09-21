@@ -91,7 +91,7 @@ public class GalleryFragment extends Fragment {
         String savedUrl = sharedPreferences.getString(URL_KEY, null);
 
         // Load the saved URL or a default URL
-        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/notification";
+        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.kamingo.in/notification";
         webView.loadUrl(initialUrl);
 
         WebSettings webSettings = webView.getSettings();

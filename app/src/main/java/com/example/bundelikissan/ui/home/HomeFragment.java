@@ -69,7 +69,7 @@ public class HomeFragment extends Fragment {
         String savedUrl = sharedPreferences.getString(URL_KEY, null);
 
         // Load the saved URL or a default URL
-        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.hellosugar.io/home";
+        String initialUrl = savedUrl != null ? savedUrl : "https://bundeli.kamingo.in/home";
         webView.loadUrl(initialUrl);
 
         WebSettings webSettings = webView.getSettings();
@@ -85,13 +85,14 @@ public class HomeFragment extends Fragment {
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
                 progressBar.setVisibility(View.VISIBLE);
-                if (url.contains("home") || url.contains("chat") || url.contains("userprofile") || url.contains("mandi") || url.contains("query")) {
-                    // Show the bottom navigation bar
-                    bottomNavViewCallback.showBottomNavigationView();
-                } else {
-                    // Hide the bottom navigation bar
-                    bottomNavViewCallback.hideBottomNavigationView();
-                }
+                bottomNavViewCallback.hideBottomNavigationView();
+//                if (url.contains("home") || url.contains("chat") || url.contains("userprofile") || url.contains("mandi") || url.contains("query")) {
+//                    // Show the bottom navigation bar
+//                    bottomNavViewCallback.showBottomNavigationView();
+//                } else {
+//                    // Hide the bottom navigation bar
+//                    bottomNavViewCallback.hideBottomNavigationView();
+//                }
             }
 
             @Override
@@ -100,6 +101,21 @@ public class HomeFragment extends Fragment {
                 progressBar.setVisibility(View.GONE);
                 CookieSyncManager.getInstance().sync();
             }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+                if (url != null && (url.startsWith("https://bundeli.hellosugar.io") || url.startsWith("https://bundeli.hellosugar.io"))) {
+//                     External link, open in external browser
+                    view.loadUrl(url);
+                    return true;
+                } else {
+                    // Internal link or other scheme, load within WebView
+                    view.getContext().startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                    return true;
+                }
+            }
+
         });
 
         webView.setOnKeyListener((view, keyCode, event) -> {

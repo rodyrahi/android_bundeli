@@ -1,5 +1,8 @@
 package com.kamingo.bundelikissan;
 
+import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -14,6 +17,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -32,7 +37,7 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.Bott
     private AppBarConfiguration mAppBarConfiguration;
     private ActivityHomeBinding binding;
     public BottomNavigationView bottomNavigationView;
-
+    private static final int PERMISSION_REQUEST_CODE = 123; // Unique code for permission request
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,7 +59,7 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.Bott
         bottomNavigationView = binding.bottomNavigation; // Assignment moved here
 
         NavigationUI.setupWithNavController(bottomNavigationView, navController);
-
+//        checkAndRequestMicrophonePermission();
         bottomNavigationView.setOnItemSelectedListener(new BottomNavigationView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -109,7 +114,7 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.Bott
     // Implement interface methods
     @Override
     public void showBottomNavigationView() {
-        bottomNavigationView.setVisibility(View.VISIBLE);
+        bottomNavigationView.setVisibility(View.GONE);
     }
 
     @Override
@@ -119,4 +124,26 @@ public class HomeActivity extends AppCompatActivity implements HomeFragment.Bott
 
 
 
+//    private void checkAndRequestMicrophonePermission() {
+//        // Check if the permission is already granted
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+//                // Permission is not granted, request it
+//                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSION_REQUEST_CODE);
+//            }
+//        }
+//    }
+
+    // Handle permission request result
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        if (requestCode == PERMISSION_REQUEST_CODE) {
+//            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                // Permission granted, you can perform microphone-related actions here if needed
+//            } else {
+//                // Permission denied, handle accordingly (e.g., show a message)
+//            }
+//        }
+//    }
 }
